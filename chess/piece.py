@@ -67,7 +67,7 @@ class Piece():
 
 class King(Piece):
 
-    def __init__(self, row, col, color):
+    def __init__(self, row, col, color=True):
         super().__init__(row, col, color)
         self.symbol = 'K'
 
