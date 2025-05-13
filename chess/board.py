@@ -174,8 +174,8 @@ class Board:
 
     def __str__(self):       
 
-        text = ''
+        texts = []
         for p in self.pieces:
-            text = text + f'[{p.row},{p.col}] - {p.get_color()} {p.get_name()}\n'
+            texts.append(f'[{p.row},{p.col}] - {p.get_color()} {p.get_name()}\n')
 
-        return text
+        return ''.join(texts)
