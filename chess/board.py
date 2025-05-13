@@ -8,6 +8,7 @@ class Board:
         self.is_player1 = True
 
     def setup(self):
+
         self.pieces = list()
 
         self.pieces.append(Rook(0, 0, False))
@@ -35,52 +36,52 @@ class Board:
             self.pieces.append(Pawn(1, i, False))
             self.pieces.append(Pawn(6, i,))
 
+
     def is_valid_to_move(self, piece, row, col):
 
         if (piece.color != self.is_player1):
             return False
 
-        square_piece = None
-        found_piece = False
+        target_piece = None
+        exists_piece = False
 
         for p in self.pieces:
             if (p.row == row and p.col == col):
-                square_piece = p
+                target_piece = p
 
             if (piece.compare_to(p)):
-                found_piece = True
+                exists_piece = True
 
-        if (not found_piece):
+        if (not exists_piece):
             return False
 
-        if (square_piece != None and (square_piece.is_same_piece_as(King(0, 0)) or square_piece.color == piece.color)):
+        if (target_piece != None and (target_piece.is_same_piece_type_as(King(0, 0)) or target_piece.color == piece.color)):
             return False
 
-        if (square_piece != None and piece.is_same_piece_as(Pawn(0, 0)) and piece.col == col):
+        if (target_piece != None and piece.is_same_piece_type_as(Pawn(0, 0)) and piece.col == col):
             return False
 
         if not piece.is_valid_move(row, col):
             return False
-
-        return True
+    
+        squares = piece.get_squares_between(row, col)
+        return self.get_are_empty_squares(squares)      
+    
 
     def move_piece(self, piece, row, col):
 
         if (not self.is_valid_to_move(piece, row, col)):
             return
 
-        found_piece = None
+        current_piece = self.get_piece(row, col)     
+        self.pieces.remove(current_piece)
 
-        for p in self.pieces:
-            if piece.compare_to(p):
-                found_piece = p
-
-        self.pieces.remove(found_piece)
         piece.row = row
         piece.col = col
         piece.was_moved = True
         self.pieces.append(piece)
         self.is_player1 = not self.is_player1
+
 
     def get_piece(self, row, col):
 
@@ -91,24 +92,29 @@ class Board:
                 break
 
         return piece
+    
 
-    def get_pieces_by_name_and_color(self, piece_name, color):
+    def get_pieces_by_name_and_color(self, name, color):
 
-        filter = list()
+        pieces = list()
         for p in self.pieces:
-            if p.get_name() == piece_name and p.color == color:
-                filter.append(p)
+            if p.get_name() == name and p.color == color:
+                pieces.append(p)
 
-        return filter
+        return pieces
+    
 
     def get_is_empty_square(self, row, col):
+
         for p in self.pieces:
             if p.row == row and p.col == col:
                 return False
 
         return True
+    
 
     def get_are_empty_squares(self, squares):
+
         n = 0
         while n < len(squares):
             if not self.get_is_empty_square(squares[n][0], squares[n][1]):
@@ -118,24 +124,25 @@ class Board:
 
         return True
     
-    def get_is_in_check(self):
-
-        rooks = self.get_pieces_by_name_and_color("Rook", not self.is_player1)
-        bishops = self.get_pieces_by_name_and_color("Bishop", not self.is_player1)
-        knights = self.get_pieces_by_name_and_color("Knight", not self.is_player1)
-        pawns = self.get_pieces_by_name_and_color("Pawn", not self.is_player1)
-        queens = self.get_pieces_by_name_and_color("Queen", not self.is_player1)
+    
+    def get_is_incheck(self):
 
         pieces = list()
+        rooks = self.get_pieces_by_name_and_color("Rook", not self.is_player1)
         pieces.extend(rooks)
+        bishops = self.get_pieces_by_name_and_color("Bishop", not self.is_player1)
         pieces.extend(bishops)
+        knights = self.get_pieces_by_name_and_color("Knight", not self.is_player1)
         pieces.extend(knights)
+        pawns = self.get_pieces_by_name_and_color("Pawn", not self.is_player1)
         pieces.extend(pawns)
-        pieces.extend(queens)
+        queens = self.get_pieces_by_name_and_color("Queen", not self.is_player1)
+        pieces.extend(queens)        
 
-        king = self.get_pieces_by_name_and_color(King(0, 0), self.is_player1)
-        row = king[0].row
-        col = king[0].col
+        king = self.get_pieces_by_name_and_color('King', self.is_player1)[0]
+
+        row = king.row
+        col = king.col      
 
         for p in pieces:
             squares = p.get_squares_between(row, col)
@@ -143,35 +150,32 @@ class Board:
                 return True
 
         return False
+    
 
-    def get_is_in_checkmate(self):
-        pass
+    def get_is_incheckmate(self):
 
-    def __str__(self):
+        if not self.get_is_incheck():
+            return False
+           
+        for piece in [p for p in self.pieces if p.color == self.is_player1]:
+            for row in range(8):
+                for col in range(8):
+
+                    copy = Board()
+                    copy.pieces = self.pieces
+                    copy.is_player1 = self.is_player1
+                    copy.move_piece(piece, row, col)
+
+                    if not copy.get_is_incheck():
+                        return False
+
+        return True
+    
+
+    def __str__(self):       
 
         text = ''
-        for i in range(8):
-            for j in range(8):
-                piece = None
-                for p in self.pieces:
-                    if p.col == j and p.row == i:
-                        piece = p
-
-                text = text + (str('.') if piece == None else str(piece))
-
-            text = text + '\n'
+        for p in self.pieces:
+            text = text + f'[{p.row},{p.col}] - {p.get_color()} {p.get_name()}\n'
 
         return text
-
-
-# Board indexes
-# for y in range(0, 8):
-#     row = list()
-#     for x in range(0, 8):
-#         row.append([y, x])
-
-#     print(row)
-
-board = Board()
-print(board)
-print(board.get_is_in_check())

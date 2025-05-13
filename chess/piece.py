@@ -48,11 +48,11 @@ class Piece():
         return squares
     
 
-    def is_same_piece_as(self, piece):
+    def is_same_piece_type_as(self, piece):
         return type(self) == type(piece)
 
     def compare_to(self, piece):
-        return (self.is_same_piece_as(piece) and self.row == piece.row and self.col == piece.col and self.color == piece.color)
+        return (self.is_same_piece_type_as(piece) and self.row == piece.row and self.col == piece.col and self.color == piece.color)
     
     def get_name(self):
         return str(type(self).__name__)
