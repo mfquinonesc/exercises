@@ -18,3 +18,13 @@ def is_react_project(base_path = "."):
     except Exception as e:
         print(f"Error reading package.json: {e}")
         return False
+    
+    
+def detect_typescript(base_path="."):
+    if os.path.exists(os.path.join(base_path, "tsconfig.json")):
+        return True
+    for root, _, files in os.walk(os.path.join(base_path, "src")):
+        for file in files:
+            if file.endswith(".ts") or file.endswith(".tsx"):
+                return True
+    return False
