@@ -127,7 +127,7 @@ def generate_page(file_path: str, extension: str, include_stylesheet: bool = Fal
     * @returns {{JSX.Element}} The rendered {name} page.
     */
     export default function {name}() {{
-        return <h1>Welcome to the {name} Page</h1>;
+        return <h1>{name} Page</h1>;
     }}
     """
     __create_file(file_path, extension, template)
@@ -142,23 +142,25 @@ def generate_service(file_path: str, use_typescript: bool = False, include_axios
 
     full_name = f"{name}Service"
 
-    template = f"""
-    {"import axios from 'axios';" if include_axios else ''}
+    axios_template = f"""
+    import axios from 'axios';
 
     /**
     * Base URL for the API.
     * Update this to point to your backend.
     * @constant {{string}}
     */
-    const API_BASE_URL = 'https://api.example.com';
+    const API_BASE_URL = 'https://localhost:3000/.../{str.lower(name)}';
+    """
 
+    template = f"""
+    { axios_template if include_axios else ''}
     /**
-    * {full_name} provides functions to interact with external services or APIs.
+    * {full_name} Service
     *
     * @namespace {full_name}
     */
-    const {full_name} = {{
-        // Add the HTTP methods as needed (put, delete, etc.)
+    const {full_name} = {{       
     }};
 
     export default {full_name};
@@ -247,6 +249,7 @@ def generate_hook(file_path: str, use_typescript: bool = False):
     name = __uppercase_first(__get_file_name(file_path))
 
     full_name = f"use{name}"
+    
     template = f"""  
     /**
     * {full_name}      
@@ -283,12 +286,30 @@ def generate_class(file_path: str, use_typescript: bool = False):
     __create_file(file_path, 'ts' if use_typescript else 'js', template)
 
 
+def get_encapsulated_path(file_path:str):
+    
+    path = __get_path(file_path)
+    name = __get_file_name(file_path)
+    return '/'.join([path, name, name])
+
+
 def generate_folders(file_path:str):
 
     folders = ["components", "features", "pages", "routes",
                "services", "store", "hooks", "context", "utils", "types"]    
     
     for f in folders:
-        __check_folder_path(f"{file_path}/{f}/_") 
+        __check_folder_path('/'.join([file_path, f, f]))
 
+
+def generate_context(file_path:str, extension:str):
+
+    if not __check_folder_path(file_path):
+        return
     
+    name = __get_file_name(file_path)
+
+    template = f"""
+
+    """
+    __create_file(file_path, extension, template)

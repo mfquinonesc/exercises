@@ -72,19 +72,21 @@ generate_hook(file_path)
 
 generate_hook(file_path, True)
 
-# Testing stylesheet
+# Testing full component creation
 
-file_path = 'tests/files/Button'
+file_path = get_encapsulated_path('tests/app/Button')
 
 generate_component(file_path,'jsx',True)
 generate_stylesheet(file_path)
 
-file_path = 'tests/files/Selector'
+file_path = get_encapsulated_path('tests/app/Selector')
 
 generate_component(file_path,'jsx',True,True)
 generate_stylesheet(file_path,True)
 
-file_path = 'tests/apps/index'
+# Testing styles 
+
+file_path = 'tests/styles/index'
 
 generate_stylesheet(file_path, True)
 generate_stylesheet(file_path, True,True)
@@ -94,3 +96,8 @@ generate_stylesheet(file_path, True,True)
 file_path =  'tests/modules/'
 
 generate_folders(file_path)
+
+# Testing get encapsulated path
+
+path = get_encapsulated_path('tests/react/components/modal')
+print('path = ', path)
